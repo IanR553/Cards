@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards - Professions in English</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .flashcard-container {
+            perspective: 1000px;
+            width: 400px;
+            height: 500px;
+            margin: 20px auto;
+            position: relative;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s;
+            cursor: pointer;
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            background: white;
+        }
+
+        .flashcard-back {
+            transform: rotateY(180deg);
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .profession-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            object-fit: cover;
+            border: 5px solid #667eea;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            background: #f0f8ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        .profession-name {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .profession-spanish {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .sound-button {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .sound-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .sound-button:active {
+            transform: translateY(-1px);
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .control-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .progress {
+            color: white;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 300px;
+            height: 8px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+            margin: 10px auto;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .flip-instruction {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 0.4; }
+        }
+
+        @media (max-width: 500px) {
+            .flashcard-container {
+                width: 90%;
+                height: 450px;
+            }
+            
+            .profession-image {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .profession-name {
+                font-size: 1.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        .audio-loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌟 Learn Professions in English 🌟</h1>
+        <p>Interactive flashcards to learn vocabulary</p>
+    </div>
+
+    <div class="flashcard-container">
+        <div class="flashcard" id="flashcard">
+            <div class="flashcard-face">
+                <div class="profession-image" id="profession-image"></div>
+                <div class="profession-name" id="profession-name"></div>
+                <button class="sound-button" id="sound-button">
+                    🔊 Listen to pronunciation
+                </button>
+            </div>
+            <div class="flashcard-face flashcard-back">
+                <div class="profession-name" id="profession-spanish"></div>
+                <div class="profession-spanish">Spanish translation</div>
+            </div>
+        </div>
+        <div class="flip-instruction">
+            Click the card to see the translation
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn" id="prev-btn">⬅️ Previous</button>
+        <button class="control-btn" id="next-btn">Next ➡️</button>
+    </div>
+
+    <div class="progress">
+        <div>Progress: <span id="current-card">1</span> / <span id="total-cards">10</span></div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+    </div>
+
+    <script>
+        const professions = [
+            {
+                english: "Doctor",
+                spanish: "Médico/a",
+                emoji: "👨‍⚕️"
+            },
+            {
+                english: "Nurse",
+                spanish: "Enfermero/a",
+                emoji: "👩‍⚕️"
+            },
+            {
+                english: "Teacher",
+                spanish: "Maestro/a",
+                emoji: "👨‍🏫"
+            },
+            {
+                english: "Firefighter",
+                spanish: "Bombero",
+                emoji: "👨‍🚒"
+            },
+            {
+                english: "Chef",
+                spanish: "Cocinero/a",
+                emoji: "👨‍🍳"
+            },
+            {
+                english: "Farmer",
+                spanish: "Granjero/a",
+                emoji: "👨‍🌾"
+            },
+            {
+                english: "Police Officer",
+                spanish: "Oficial de Policía",
+                emoji: "👮‍♂️"
+            },
+            {
+                english: "Vet",
+                spanish: "Veterinario/a",
+                emoji: "👨‍⚕️"
+            },
+            {
+                english: "Driver",
+                spanish: "Conductor/a",
+                emoji: "👨‍✈️"
+            },
+            {
+                english: "Dentist",
+                spanish: "Dentista",
+                emoji: "🦷"
+            }
+        ];
+
+        let currentCard = 0;
+        let isFlipped = false;
+
+        // Elements
+        const flashcard = document.getElementById('flashcard');
+        const professionImage = document.getElementById('profession-image');
+        const professionName = document.getElementById('profession-name');
+        const professionSpanish = document.getElementById('profession-spanish');
+        const soundButton = document.getElementById('sound-button');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const currentCardSpan = document.getElementById('current-card');
+        const totalCardsSpan = document.getElementById('total-cards');
+        const progressFill = document.getElementById('progress-fill');
+
+        // Initialize
+        totalCardsSpan.textContent = professions.length;
+        updateCard();
+
+        // Event listeners
+        flashcard.addEventListener('click', flipCard);
+        soundButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            playPronunciation();
+        });
+        prevBtn.addEventListener('click', previousCard);
+        nextBtn.addEventListener('click', nextCard);
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') previousCard();
+            if (e.key === 'ArrowRight') nextCard();
+            if (e.key === ' ') {
+                e.preventDefault();
+                flipCard();
+            }
+            if (e.key === 'Enter') playPronunciation();
+        });
+
+        function updateCard() {
+            const profession = professions[currentCard];
+            
+            // Update image with emoji
+            professionImage.textContent = profession.emoji;
+            
+            // Update text
+            professionName.textContent = profession.english;
+            professionSpanish.textContent = profession.spanish;
+            
+            // Update progress
+            currentCardSpan.textContent = currentCard + 1;
+            progressFill.style.width = ((currentCard + 1) / professions.length) * 100 + '%';
+            
+            // Reset flip state
+            isFlipped = false;
+            flashcard.classList.remove('flipped');
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            flashcard.classList.toggle('flipped');
+        }
+
+        function playPronunciation() {
+            const profession = professions[currentCard];
+            const text = profession.english;
+            
+            // Add loading state
+            soundButton.classList.add('audio-loading');
+            soundButton.textContent = '🔄 Loading...';
+            
+            // Use Web Speech API for pronunciation
+            if ('speechSynthesis' in window) {
+                // Cancel any ongoing speech
+                speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.8;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                
+                utterance.onend = () => {
+                    soundButton.classList.remove('audio-loading');
+                    soundButton.innerHTML = '🔊 Listen to pronunciation';
+                };
+                
+                utterance.onerror = () => {
+                    soundButton.classList.remove('audio-loading');
+                    soundButton.innerHTML = '🔊 Listen to pronunciation';
+                    alert('Sorry, audio is not available in your browser.');
+                };
+                
+                speechSynthesis.speak(utterance);
+            } else {
+                soundButton.classList.remove('audio-loading');
+                soundButton.innerHTML = '🔊 Listen to pronunciation';
+                alert('Sorry, your browser does not support text-to-speech.');
+            }
+        }
+
+        function previousCard() {
+            currentCard = (currentCard - 1 + professions.length) % professions.length;
+            updateCard();
+        }
+
+        function nextCard() {
+            currentCard = (currentCard + 1) % professions.length;
+            updateCard();
+        }
+
+        // Auto-advance every 10 seconds (optional)
+        let autoAdvanceTimer;
+        
+        function startAutoAdvance() {
+            autoAdvanceTimer = setInterval(() => {
+                if (!isFlipped) {
+                    nextCard();
+                }
+            }, 10000);
+        }
+        
+        function stopAutoAdvance() {
+            clearInterval(autoAdvanceTimer);
+        }
+        
+        // Start auto-advance on page load
+        startAutoAdvance();
+        
+        // Stop auto-advance when user interacts
+        [flashcard, prevBtn, nextBtn, soundButton].forEach(el => {
+            el.addEventListener('click', () => {
+                stopAutoAdvance();
+                setTimeout(startAutoAdvance, 5000); // Resume after 5 seconds
+            });
+        });
+    </script>
+</body>
+</html>
